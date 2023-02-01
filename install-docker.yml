@@ -1,0 +1,80 @@
+---
+- name: Preconfig
+  
+  hosts: demo
+
+
+
+  tasks:  
+    - name: install_Docker
+      block:    
+        - name: add universe
+          apt_repository:
+            repo: "deb http://us.archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }} universe"
+            state: present
+          become: yes 
+        - name: install costoms packetges
+          apt:
+            name:
+              - apt-transport-https
+              - ca-certificates
+              - curl
+              - gnupg
+              - lsb-release
+            update-cache: yes
+            cache_valid_time: 86400
+          become: yes
+          
+
+        - name: docker add key
+          apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            keyring: /etc/apt/keyrings/docker.gpg
+          become: yes
+        - name: add repo Docker
+          apt_repository:
+            repo: > 
+              deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg]
+              https://download.docker.com/linux/ubuntu 
+              {{ ansible_distribution_release }} stable
+            state: present
+            update-cache: yes
+            filename: docker
+          become: yes
+          
+        - name: Install docker-ce
+          apt:
+            name: docker-ce
+            update-cache: yes
+          become: yes    
+        - name: check installed docker
+          service:
+            name: docker
+            state: restarted
+            enabled: yes
+          become: yes  
+      
+      
+    - name: install docker-compose
+      block:
+        
+      - name: get latest version docker-compose
+        uri:
+          url: https://api.github.com/repos/docker/compose/releases/latest
+          body_format: json
+        register: page
+      
+      - name: istall docker-compose
+        get_url:
+          url: https://github.com/docker/compose/releases/download/{{ page.json.tag_name }}/docker-compose-Linux-x86_64
+          dest: /usr/local/bin/docker-compose
+          mode: 0755
+        become: yes 
+    - name: finish install 
+      block:
+      - name: add_user1
+        user:
+          name: "{{ ansible_user }}"
+          group: docker
+          append: yes
+        become: yes

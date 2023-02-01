@@ -1,0 +1,59 @@
+---
+- name: install kvm
+  hosts: demo
+  tasks:
+  - name: install-VM
+    block:
+      - name: install-kvm
+        apt:
+          name:
+            - git
+            - libglib2.0-dev
+            - libfdt-dev 
+            - libpixman-1-dev 
+            - zlib1g-dev 
+            - ninja-build
+            - git-email
+            - libaio-dev 
+            - libbluetooth-dev 
+            - libcapstone-dev 
+            - libbrlapi-dev 
+            - libbz2-dev
+            - qemu
+            - qemu-kvm
+            - libvirt-bin
+            - bridge-utils
+            - virt-manager
+          update_cache: true 
+          cache_valid_time: 86400
+        become: true
+        register: error
+      
+      - name: show error
+        debug:
+          msg:
+          - "{{ error }}"
+
+      
+      - name: start_service
+        service:
+          name: libvirtd
+          state: started
+          enabled: true
+        become: true
+      
+
+      - name: check status
+        service:
+          name: libvirtd
+          state: restarted
+          enabled: true
+        become: true
+
+        register: status
+      
+      - name: status_print
+        debug:
+          msg: 
+            - " Библиотека установлена и запущена статус {{status.state}}" 
+            
