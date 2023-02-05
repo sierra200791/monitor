@@ -1,29 +1,13 @@
 ---
-- name: install kvm
+- name: install vbox
   hosts: demo
   tasks:
-  - name: install-VM
+  - name: install-vbox
     block:
-      - name: install-kvm
+      - name: install-vbox
         apt:
           name:
-            - git
-            - libglib2.0-dev
-            - libfdt-dev 
-            - libpixman-1-dev 
-            - zlib1g-dev 
-            - ninja-build
-            - git-email
-            - libaio-dev 
-            - libbluetooth-dev 
-            - libcapstone-dev 
-            - libbrlapi-dev 
-            - libbz2-dev
-            - qemu
-            - qemu-kvm
-            - libvirt-bin
-            - bridge-utils
-            - virt-manager
+            - virtualbox
           update_cache: true 
           cache_valid_time: 86400
         become: true
@@ -37,23 +21,20 @@
       
       - name: start_service
         service:
-          name: libvirtd
+          name: virtualbox
           state: started
           enabled: true
         become: true
-      
-
-      - name: check status
-        service:
-          name: libvirtd
-          state: restarted
-          enabled: true
+                       
+      - name: install_vagrant
+        apt:
+          name: vagrant
+          update-cache: true
         become: true
+        
+      - name: add vagrant_dir   
+        command: mkdir /home/monik/vag
+        command: touch /home/monik/vag/Vagrantfile
+        
+       
 
-        register: status
-      
-      - name: status_print
-        debug:
-          msg: 
-            - " Библиотека установлена и запущена статус {{status.state}}" 
-            

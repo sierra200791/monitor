@@ -1,0 +1,26 @@
+---
+- name: install-vagrant
+  
+  hosts: demo
+
+
+
+  tasks:  
+    - name: install_vagrant
+      block:    
+       
+      
+          
+        - name: Install vagrant
+          apt:
+            name: vagrant
+            update-cache: yes
+          become: yes    
+        - name: check installed vagrant
+          service:
+            name: vagrant
+            state: restarted
+            enabled: yes
+          become: yes  
+      
+    
